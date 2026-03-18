@@ -1,0 +1,32 @@
+# Environments
+.venv/
+.env
+.env.local
+venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Prisma Generated
+/prisma/
+# (But keep schema.prisma)
+
+# Data/Logs
+test.csv
+training/dataset/synthetic_logs.csv
+resources/output.csv
+
+# Large models (if needed)
+# models/log_classifier.joblib

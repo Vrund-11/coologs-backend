@@ -1,0 +1,30 @@
+// Generator block configured for the prisma-client-python library
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+// Datasource block for NeonDB (PostgreSQL)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Log Model: Stores every classified log entry linked to a Clerk User ID
+model Log {
+  id           String   @id @default(uuid())
+  userId       String   // Clerk User ID for multi-tenancy
+  source       String   // e.g., AnalyticsEngine, BillingSystem, etc.
+  log_message  String   @db.Text // The raw log payload
+  label        String   // e.g., [🔴 Sec. Alert], [🔵 User Action]
+  tier         String   // REGEX, BERT, or GEMINI
+  color        String   // red, blue, amber, yellow, emerald
+  timestamp    DateTime @default(now())
+}
+
+// AdminStats Model: Stores global system-wide metrics (Single record tracking)
+model AdminStats {
+  id                Int      @id @default(1)
+  gemini_calls_today Int      @default(0)
+  total_mesh_calls  Int      @default(0)
+}

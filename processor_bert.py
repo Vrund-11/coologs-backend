@@ -5,40 +5,54 @@ from sentence_transformers import SentenceTransformer
 # Tier 2: BERT (Sentence Transformer) + Logistic Regression
 # This handles complex logs that regex can't identify by understanding the meaning of text.
 
-# Load the Sentence Transformer model (converts text to numbers/embeddings)
-# Using a lightweight model for speed
-model_embedding = SentenceTransformer('all-MiniLM-L6-v2')
+# Global variables to store models once loaded
+_model_embedding = None
+_model_classification = None
 
-# Load the trained Logistic Regression model
-# We check if the model file exists first to avoid errors
-model_path = "models/log_classifier.joblib"
-if os.path.exists(model_path):
-    model_classification = joblib.load(model_path)
-else:
-    model_classification = None
-    print(f"Warning: Trained model not found at {model_path}. Please run train_model.py first.")
+def get_bert_models():
+    """
+    Lazily loads the embedding and classification models.
+    This prevents the server from timing out during startup on cloud platforms.
+    """
+    global _model_embedding, _model_classification
+    
+    if _model_embedding is None:
+        print("Loading Sentence Transformer (BERT) model...")
+        _model_embedding = SentenceTransformer('all-MiniLM-L6-v2')
+    
+    if _model_classification is None:
+        model_path = "models/log_classifier.joblib"
+        if os.path.exists(model_path):
+            print("Loading Logistic Regression classifier...")
+            _model_classification = joblib.load(model_path)
+        else:
+            print(f"Warning: Trained model not found at {model_path}.")
+            _model_classification = "MISSING" # Mark as missing so we don't try again
+            
+    return _model_embedding, _model_classification
 
 def classify_with_bert(log_message):
     """
     Classify a log message by understanding its semantic meaning.
     It returns "Unclassified" if the AI isn't confident enough.
     """
-    if model_classification is None:
+    embedding_model, classifier_model = get_bert_models()
+    
+    if classifier_model is None or classifier_model == "MISSING":
         return "Unclassified (Model Missing)"
 
     # Step 1: Convert the log message into a mathematical representation (embedding)
-    embeddings = model_embedding.encode([log_message])
+    embeddings = embedding_model.encode([log_message])
     
     # Step 2: Get the confidence probabilities for each category
-    probabilities = model_classification.predict_proba(embeddings)[0]
+    probabilities = classifier_model.predict_proba(embeddings)[0]
     
     # Step 3: Check if the AI's highest confidence is above our threshold (50%)
-    # This prevents the AI from just "guessing" a random category
     if max(probabilities) < 0.5:
         return "Unclassified"
     
     # Step 4: Pick the category with the highest confidence
-    predicted_label = model_classification.predict(embeddings)[0]
+    predicted_label = classifier_model.predict(embeddings)[0]
     
     return predicted_label
 

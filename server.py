@@ -1,3 +1,16 @@
+import subprocess
+import sys
+
+# --- Automatic Prisma Client Generation ---
+# This ensures the Prisma client is generated during startup on platforms like Render
+# where the build command is restricted.
+try:
+    print("Checking Prisma client generation...")
+    subprocess.run(["python", "-m", "prisma", "generate"], check=True)
+    print("Prisma client generated successfully.")
+except Exception as e:
+    print(f"Warning: Prisma generation skipped or failed: {e}")
+
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd

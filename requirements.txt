@@ -7,3 +7,6 @@ pandas==3.0.1
 scikit-learn==1.8.0
 uvicorn==0.42.0
 python-multipart==0.0.22
+prisma==0.15.0
+tomlkit==0.14.0
+nodeenv==1.10.0

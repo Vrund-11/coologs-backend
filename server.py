@@ -289,4 +289,8 @@ async def get_admin_metrics():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    # Get the port from Render's environment variable (default to 8000 for local)
+    port = int(os.environ.get("PORT", 8000))
+    # Run the server with the assigned port and bind to all interfaces
+    uvicorn.run(app, host="0.0.0.0", port=port)

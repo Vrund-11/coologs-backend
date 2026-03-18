@@ -10,3 +10,5 @@ python-multipart==0.0.22
 prisma==0.15.0
 tomlkit==0.14.0
 nodeenv==1.10.0
+httpx>=0.23.0
+pydantic>=2.0
